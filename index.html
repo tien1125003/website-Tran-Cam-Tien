@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tính Hàm Lượng Lipid Trong Thịt Bò</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        .input-focus:focus {
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-100">
+    <!-- Header -->
+    <header class="gradient-bg text-white py-8">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold mb-2">🥩 Tính Hàm Lượng Lipid Trong Thịt Bò</h1>
+            <p class="text-purple-100 text-lg">Công cụ tính toán chuyên nghiệp cho phòng thí nghiệm</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Chọn phương pháp -->
+        <div class="bg-white rounded-2xl card-shadow p-6 mb-8">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">📊 Chọn Phương Pháp Phân Tích</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button onclick="selectMethod('soxhlet')" id="btn-soxhlet" class="method-btn p-4 border-2 border-purple-500 bg-purple-50 rounded-xl text-left transition hover:bg-purple-100">
+                    <h3 class="font-bold text-purple-700">Phương pháp Soxhlet</h3>
+                    <p class="text-sm text-gray-600">Chiết xuất lipid bằng dung môi</p>
+                </button>
+                <button onclick="selectMethod('folch')" id="btn-folch" class="method-btn p-4 border-2 border-gray-200 rounded-xl text-left transition hover:bg-gray-50">
+                    <h3 class="font-bold text-gray-700">Phương pháp Folch</h3>
+                    <p class="text-sm text-gray-600">Chloroform/Methanol</p>
+                </button>
+                <button onclick="selectMethod('bligh')" id="btn-bligh" class="method-btn p-4 border-2 border-gray-200 rounded-xl text-left transition hover:bg-gray-50">
+                    <h3 class="font-bold text-gray-700">Phương pháp Bligh-Dyer</h3>
+                    <p class="text-sm text-gray-600">Mẫu có độ ẩm cao</p>
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Form nhập liệu -->
+            <div class="bg-white rounded-2xl card-shadow p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-6">📝 Nhập Thông Số</h2>
+                
+                <!-- Soxhlet Form -->
+                <div id="form-soxhlet" class="method-form">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Khối lượng mẫu thịt bò ban đầu (m₀) - gram</label>
+                            <input type="number" id="soxhlet-m0" step="0.0001" placeholder="VD: 5.0000" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Khối lượng bình cầu rỗng (m₁) - gram</label>
+                            <input type="number" id="soxhlet-m1" step="0.0001" placeholder="VD: 150.2345" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Khối lượng bình cầu + lipid (m₂) - gram</label>
+                            <input type="number" id="soxhlet-m2" step="0.0001" placeholder="VD: 150.8765" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus focus:outline-none focus:border-purple-500">
+                        </div>
+                    </div>
+                    <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                        <h4 class="font-semibold text-blue-800 mb-2">📐 Công thức Soxhlet:</h4>
+                        <p class="text-blue-900 font-mono text-center text-lg">% Lipid = [(m₂ - m₁) / m₀] × 100</p>
+                    </div>
+                </div>
+
+                <!-- Folch Form -->
+                <div id="form-folch" class="method-form hidden">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Khối lượng mẫu thịt bò (m) - gram</label>
+                            <input type="number" id="folch-m" step="0.0001" placeholder="VD: 1.0000" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Thể tích dung môi chiết (V) - mL</label>
+                            <input type="number" id="folch-v" step="0.01" placeholder="VD: 20.00" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Thể tích aliquot (v) - mL</label>
+                            <input type="number" id="folch-aliquot" step="0.01" placeholder="VD: 5.00" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Khối lượng lipid thu được từ aliquot (g) - gram</label>
+                            <input type="number" id="folch-lipid" step="0.0001" placeholder="VD: 0.0450" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus focus:outline-none focus:border-purple-500">
+                        </div>
+                    </div>
+                    <div class="mt-6 p-4 bg-green-50 rounded-lg">
+                        <h4 class="font-semibold text-green-800 mb-2">📐 Công thức Folch:</h4>
+                        <p class="text-green-900 font-mono text-center text-lg">% Lipid = [(g × V) / (v × m)] × 100</p>
+                    </div>
+                </div>
+
+                <!-- Bligh-Dyer Form -->
+                <div id="form-bligh" class="method-form hidden">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Khối lượng mẫu ướt (W) - gram</label>
+                            <input type="number" id="bligh-w" step="0.0001" placeholder="VD: 10.0000" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Khối lượng lipid chiết được (L) - gram</label>
+                            <input type="number" id="bligh-l" step="0.0001" placeholder="VD: 0.8500" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Độ ẩm mẫu (%) - tùy chọn</label>
+                            <input type="number" id="bligh-moisture" step="0.01" placeholder="VD: 75.00" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus focus:outline-none focus:border-purple-500">
+                        </div>
+                    </div>
+                    <div class="mt-6 p-4 bg-orange-50 rounded-lg">
+                        <h4 class="font-semibold text-orange-800 mb-2">📐 Công thức Bligh-Dyer:</h4>
+                        <p class="text-orange-900 font-mono text-center text-lg">% Lipid (ướt) = (L / W) × 100</p>
+                        <p class="text-orange-900 font-mono text-center text-sm mt-1">% Lipid (khô) = % Lipid ướt / (1 - %ẩm/100)</p>
+                    </div>
+                </div>
+
+                <button onclick="calculate()" class="w-full mt-6 bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-4 rounded-xl font-bold text-lg hover:from-purple-700 hover:to-indigo-700 transition transform hover:scale-[1.02]">
+                    🧮 Tính Toán
+                </button>
+            </div>
+
+            <!-- Kết quả -->
+            <div class="bg-white rounded-2xl card-shadow p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-6">📈 Kết Quả Phân Tích</h2>
+                
+                <div id="result-container" class="hidden">
+                    <div class="bg-gradient-to-r from-purple-500 to-indigo-500 rounded-xl p-6 text-white mb-6">
+                        <p class="text-purple-100 text-sm mb-1">Hàm lượng Lipid</p>
+                        <p id="result-value" class="text-4xl font-bold">0.00%</p>
+                    </div>
+
+                    <div id="dry-basis-result" class="hidden bg-gradient-to-r from-orange-400 to-red-400 rounded-xl p-6 text-white mb-6">
+                        <p class="text-orange-100 text-sm mb-1">Hàm lượng Lipid (theo chất khô)</p>
+                        <p id="result-dry" class="text-4xl font-bold">0.00%</p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <h4 class="font-semibold text-gray-700">Chi tiết tính toán:</h4>
+                        <div id="calculation-steps" class="bg-gray-50 rounded-lg p-4 font-mono text-sm text-gray-700">
+                        </div>
+                    </div>
+
+                    <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <h4 class="font-semibold text-yellow-800 mb-2">📋 Đánh giá kết quả:</h4>
+                        <p id="evaluation" class="text-yellow-900"></p>
+                    </div>
+                </div>
+
+                <div id="no-result" class="text-center py-12 text-gray-400">
+                    <svg class="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                    <p>Nhập thông số và nhấn "Tính Toán"</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bảng tham khảo -->
+        <div class="bg-white rounded-2xl card-shadow p-6 mt-8">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">📚 Bảng Tham Khảo Hàm Lượng Lipid Trong Các Loại Thịt Bò</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="px-4 py-3 rounded-tl-lg">Loại thịt bò</th>
+                            <th class="px-4 py-3">Lipid (%)</th>
+                            <th class="px-4 py-3">Protein (%)</th>
+                            <th class="px-4 py-3 rounded-tr-lg">Ghi chú</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-medium">Thịt bò nạc (thăn)</td>
+                            <td class="px-4 py-3">3 - 5%</td>
+                            <td class="px-4 py-3">20 - 22%</td>
+                            <td class="px-4 py-3 text-gray-500">Ít mỡ nhất</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-medium">Thịt bò bắp</td>
+                            <td class="px-4 py-3">5 - 8%</td>
+                            <td class="px-4 py-3">19 - 21%</td>
+                            <td class="px-4 py-3 text-gray-500">Mỡ vừa phải</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-medium">Thịt bò vai</td>
+                            <td class="px-4 py-3">8 - 12%</td>
+                            <td class="px-4 py-3">18 - 20%</td>
+                            <td class="px-4 py-3 text-gray-500">Mỡ trung bình</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-medium">Thịt bò ba chỉ</td>
+                            <td class="px-4 py-3">15 - 20%</td>
+                            <td class="px-4 py-3">16 - 18%</td>
+                            <td class="px-4 py-3 text-gray-500">Nhiều mỡ xen</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-medium">Thịt bò Wagyu (A5)</td>
+                            <td class="px-4 py-3">25 - 35%</td>
+                            <td class="px-4 py-3">14 - 16%</td>
+                            <td class="px-4 py-3 text-gray-500">Mỡ cẩm thạch cao</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-400 py-6 mt-8">
+        <div class="container mx-auto px-4 text-center">
+            <p>© 2024 - Công cụ tính hàm lượng Lipid trong thịt bò</p>
+            <p class="text-sm mt-1">Dành cho mục đích nghiên cứu và phòng thí nghiệm</p>
+        </div>
+    </footer>
+
+    <script>
+        let currentMethod = 'soxhlet';
+
+        function selectMethod(method) {
+            currentMethod = method;
+            
+            // Update button styles
+            document.querySelectorAll('.method-btn').forEach(btn => {
+                btn.classList.remove('border-purple-500', 'bg-purple-50');
+                btn.classList.add('border-gray-200');
+            });
+            document.getElementById(`btn-${method}`).classList.remove('border-gray-200');
+            document.getElementById(`btn-${method}`).classList.add('border-purple-500', 'bg-purple-50');
+            
+            // Show/hide forms
+            document.querySelectorAll('.method-form').forEach(form => {
+                form.classList.add('hidden');
+            });
+            document.getElementById(`form-${method}`).classList.remove('hidden');
+            
+            // Reset results
+            document.getElementById('result-container').classList.add('hidden');
+            document.getElementById('no-result').classList.remove('hidden');
+        }
+
+        function calculate() {
+            let lipidPercent = 0;
+            let lipidDry = null;
+            let steps = '';
+            
+            if (currentMethod === 'soxhlet') {
+                const m0 = parseFloat(document.getElementById('soxhlet-m0').value);
+                const m1 = parseFloat(document.getElementById('soxhlet-m1').value);
+                const m2 = parseFloat(document.getElementById('soxhlet-m2').value);
+                
+                if (isNaN(m0) || isNaN(m1) || isNaN(m2) || m0 <= 0) {
+                    alert('Vui lòng nhập đầy đủ và chính xác các thông số!');
+                    return;
+                }
+                
+                const lipidMass = m2 - m1;
+                lipidPercent = (lipidMass / m0) * 100;
+                
+                steps = `
+                    <p><strong>Bước 1:</strong> Tính khối lượng lipid</p>
+                    <p class="ml-4">m(lipid) = m₂ - m₁</p>
+                    <p class="ml-4">m(lipid) = ${m2.toFixed(4)} - ${m1.toFixed(4)}</p>
+                    <p class="ml-4 text-purple-600 font-bold">m(lipid) = ${lipidMass.toFixed(4)} g</p>
+                    <br>
+                    <p><strong>Bước 2:</strong> Tính % Lipid</p>
+                    <p class="ml-4">% Lipid = (m(lipid) / m₀) × 100</p>
+                    <p class="ml-4">% Lipid = (${lipidMass.toFixed(4)} / ${m0.toFixed(4)}) × 100</p>
+                    <p class="ml-4 text-purple-600 font-bold">% Lipid = ${lipidPercent.toFixed(2)}%</p>
+                `;
+            } 
+            else if (currentMethod === 'folch') {
+                const m = parseFloat(document.getElementById('folch-m').value);
+                const V = parseFloat(document.getElementById('folch-v').value);
+                const v = parseFloat(document.getElementById('folch-aliquot').value);
+                const g = parseFloat(document.getElementById('folch-lipid').value);
+                
+                if (isNaN(m) || isNaN(V) || isNaN(v) || isNaN(g) || m <= 0 || v <= 0) {
+                    alert('Vui lòng nhập đầy đủ và chính xác các thông số!');
+                    return;
+                }
+                
+                const totalLipid = (g * V) / v;
+                lipidPercent = (totalLipid / m) * 100;
+                
+                steps = `
+                    <p><strong>Bước 1:</strong> Tính tổng lipid trong mẫu</p>
+                    <p class="ml-4">Lipid tổng = (g × V) / v</p>
+                    <p class="ml-4">Lipid tổng = (${g.toFixed(4)} × ${V.toFixed(2)}) / ${v.toFixed(2)}</p>
+                    <p class="ml-4 text-green-600 font-bold">Lipid tổng = ${totalLipid.toFixed(4)} g</p>
+                    <br>
+                    <p><strong>Bước 2:</strong> Tính % Lipid</p>
+                    <p class="ml-4">% Lipid = (Lipid tổng / m) × 100</p>
+                    <p class="ml-4">% Lipid = (${totalLipid.toFixed(4)} / ${m.toFixed(4)}) × 100</p>
+                    <p class="ml-4 text-green-600 font-bold">% Lipid = ${lipidPercent.toFixed(2)}%</p>
+                `;
+            }
+            else if (currentMethod === 'bligh') {
+                const W = parseFloat(document.getElementById('bligh-w').value);
+                const L = parseFloat(document.getElementById('bligh-l').value);
+                const moisture = parseFloat(document.getElementById('bligh-moisture').value);
+                
+                if (isNaN(W) || isNaN(L) || W <= 0) {
+                    alert('Vui lòng nhập đầy đủ và chính xác các thông số!');
+                    return;
+                }
+                
+                lipidPercent = (L / W) * 100;
+                
+                steps = `
+                    <p><strong>Bước 1:</strong> Tính % Lipid (theo mẫu ướt)</p>
+                    <p class="ml-4">% Lipid = (L / W) × 100</p>
+                    <p class="ml-4">% Lipid = (${L.toFixed(4)} / ${W.toFixed(4)}) × 100</p>
+                    <p class="ml-4 text-orange-600 font-bold">% Lipid (ướt) = ${lipidPercent.toFixed(2)}%</p>
+                `;
+                
+                if (!isNaN(moisture) && moisture > 0 && moisture < 100) {
+                    lipidDry = lipidPercent / (1 - moisture/100);
+                    steps += `
+                        <br>
+                        <p><strong>Bước 2:</strong> Tính % Lipid (theo chất khô)</p>
+                        <p class="ml-4">% Lipid(khô) = % Lipid(ướt) / (1 - %ẩm/100)</p>
+                        <p class="ml-4">% Lipid(khô) = ${lipidPercent.toFixed(2)} / (1 - ${moisture.toFixed(2)}/100)</p>
+                        <p class="ml-4 text-red-600 font-bold">% Lipid (khô) = ${lipidDry.toFixed(2)}%</p>
+                    `;
+                }
+            }
+            
+            // Display results
+            document.getElementById('no-result').classList.add('hidden');
+            document.getElementById('result-container').classList.remove('hidden');
+            document.getElementById('result-value').textContent = lipidPercent.toFixed(2) + '%';
+            document.getElementById('calculation-steps').innerHTML = steps;
+            
+            // Dry basis result
+            if (lipidDry !== null) {
+                document.getElementById('dry-basis-result').classList.remove('hidden');
+                document.getElementById('result-dry').textContent = lipidDry.toFixed(2) + '%';
+            } else {
+                document.getElementById('dry-basis-result').classList.add('hidden');
+            }
+            
+            // Evaluation
+            let evaluation = '';
+            if (lipidPercent < 5) {
+                evaluation = '✅ Hàm lượng lipid thấp - Tương đương thịt bò nạc (thăn, bắp nạc). Phù hợp cho chế độ ăn ít béo.';
+            } else if (lipidPercent < 10) {
+                evaluation = '⚖️ Hàm lượng lipid trung bình - Tương đương thịt bò vai, bắp. Cân bằng giữa độ mềm và dinh dưỡng.';
+            } else if (lipidPercent < 20) {
+                evaluation = '🔶 Hàm lượng lipid cao - Tương đương thịt bò ba chỉ, sườn. Thịt mềm, nhiều vị.';
+            } else {
+                evaluation = '🔴 Hàm lượng lipid rất cao - Tương đương thịt bò Wagyu cao cấp hoặc phần nhiều mỡ. Giàu hương vị nhưng cần tiêu thụ vừa phải.';
+            }
+            document.getElementById('evaluation').textContent = evaluation;
+        }
+    </script>
+</body>
+</html>
